@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ER Endings Game</title>
+  <title>ER Endings Game + House Builder</title>
 
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#ff4fd8">
@@ -11,7 +11,7 @@
   <style>
     body{
       font-family: Arial, sans-serif;
-      max-width: 560px;
+      max-width: 980px;
       margin: 0 auto;
       padding: 14px;
       background: linear-gradient(135deg,#ff4fd8,#7c5cff,#2ee9ff,#7dff6a);
@@ -23,74 +23,411 @@
       50%{background-position:100% 50%}
       100%{background-position:0% 50%}
     }
-    .card{
-      background:white;
-      border-radius:18px;
-      padding:16px;
-      box-shadow:0 12px 30px rgba(0,0,0,.2);
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
     }
-    h1{margin:0}
-    .q{font-size:24px;margin:14px 0;font-weight:bold}
+    @media (min-width: 900px){
+      .grid{ grid-template-columns: 1.05fr .95fr; }
+    }
+
+    .card{
+      background: rgba(255,255,255,0.94);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.2);
+    }
+
+    h1{margin:0 0 6px}
+    .sub{margin:0 0 12px}
+
+    .toprow{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:space-between;
+    }
+    .pill{
+      display:inline-block;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: 800;
+      background: #111;
+      color: white;
+      font-size: 14px;
+    }
+    .pill span{opacity:.9; font-weight:700}
+
+    .q{font-size:24px;margin:14px 0;font-weight:900}
+
     button{
       width:100%;
       padding:16px;
       margin:8px 0;
-      font-size:22px;
+      font-size:20px;
       border-radius:18px;
       border:none;
-      font-weight:bold;
+      font-weight:900;
+      cursor:pointer;
+      transition: transform .05s ease;
     }
+    button:active{transform: scale(.99)}
+
     .new{background:#111;color:white}
-    .a{background:#ff9a3c}
-    .b{background:#7c5cff;color:white}
-    .msg{min-height:28px;font-size:18px;font-weight:bold}
+    .a{background:linear-gradient(90deg,#ff9a3c,#ff4fd8); color:#111}
+    .b{background:linear-gradient(90deg,#2ee9ff,#7c5cff); color:white}
+    .smallbtn{
+      width:auto;
+      padding:10px 12px;
+      font-size:14px;
+      border-radius:12px;
+      margin:0;
+      background:#111;
+      color:#fff;
+    }
+
+    .msg{min-height:28px;font-size:18px;font-weight:900;margin-top:6px}
+    .good{color:#0a7a55}
+    .bad{color:#b00020}
+
+    /* Builder */
+    .builderTop{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom: 10px;
+    }
+    .rooms{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin: 10px 0 8px;
+    }
+    .roomBtn{
+      width:auto;
+      padding:10px 12px;
+      font-size:14px;
+      border-radius:999px;
+      border:2px solid rgba(0,0,0,.12);
+      background:#fff;
+      cursor:pointer;
+      font-weight:900;
+    }
+    .roomBtn.active{
+      border-color:#111;
+      box-shadow: 0 0 0 3px rgba(0,0,0,.08);
+    }
+
+    .plan{
+      display:grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap:8px;
+      user-select:none;
+      margin-top:10px;
+    }
+    .tile{
+      aspect-ratio: 1 / 1;
+      border-radius: 14px;
+      border: 2px dashed rgba(0,0,0,.25);
+      background: rgba(255,255,255,.75);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight: 900;
+      font-size: 12px;
+      text-align:center;
+      padding: 6px;
+      cursor:pointer;
+    }
+    .tile.filled{
+      border-style: solid;
+      border-color: rgba(0,0,0,.15);
+      color:#111;
+    }
+    .hint{
+      font-size:14px;
+      opacity:.9;
+      margin-top:6px;
+      line-height:1.3;
+    }
+
+    /* Confetti */
+    .confetti{
+      position: fixed;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      display:none;
+    }
+    .dot{
+      position:absolute;
+      width:10px; height:10px;
+      border-radius: 50%;
+      animation: fall 900ms linear forwards;
+    }
+    @keyframes fall{
+      from{transform: translateY(-20px) rotate(0deg); opacity:1;}
+      to{transform: translateY(100vh) rotate(360deg); opacity:0;}
+    }
   </style>
 </head>
 
 <body>
-  <div class="card">
-    <h1>🌈 ER Endings Game</h1>
-    <p>Rule: remove <b>-er</b>, add <b>e es e ons ez ent</b></p>
+  <div class="grid">
+    <!-- GAME -->
+    <div class="card">
+      <div class="toprow">
+        <div>
+          <h1>🌈 ER Endings Game</h1>
+          <p class="sub">Rule: remove <b>-er</b>, add <b>e es e ons ez ent</b></p>
+        </div>
+        <div class="pill">
+          Coins 🪙 <span id="coins">0</span> • Streak <span id="streak">0</span>
+        </div>
+      </div>
 
-    <div class="q" id="q">Tap NEW to start</div>
+      <div class="q" id="q">Tap NEW to start ✨</div>
 
-    <button class="new" onclick="newQ()">NEW</button>
-    <button class="a" id="a" onclick="pick('a')">—</button>
-    <button class="b" id="b" onclick="pick('b')">—</button>
+      <button class="new" onclick="newQ()">NEW QUESTION</button>
+      <button class="a" id="a" onclick="pick('a')">—</button>
+      <button class="b" id="b" onclick="pick('b')">—</button>
 
-    <div class="msg" id="msg"></div>
+      <div class="msg" id="msg"></div>
+      <div class="hint">
+        Reward: every correct answer gives <b>+1 coin</b>. Use coins to build your house on the right 🏠
+      </div>
+    </div>
+
+    <!-- BUILDER -->
+    <div class="card">
+      <div class="builderTop">
+        <h1 style="margin:0">🏠 Build a House</h1>
+        <button class="smallbtn" onclick="resetHouse()">Reset House</button>
+      </div>
+
+      <div class="hint">
+        Choose a room, then tap a square to place it. Each room costs <b>1 coin</b>.
+      </div>
+
+      <div class="rooms" id="rooms"></div>
+
+      <div class="plan" id="plan" aria-label="floor plan grid"></div>
+
+      <div class="hint" id="buildMsg"></div>
+    </div>
   </div>
 
+  <div class="confetti" id="confetti"></div>
+
 <script>
+  // ---------- GAME ----------
   const data=[["je","e"],["tu","es"],["il/elle","e"],["nous","ons"],["vous","ez"],["ils/elles","ent"]];
   const ends=["e","es","ons","ez","ent"];
-  let correct="",locked=true;
+  let correct="", locked=true;
+
+  let coins = 0;
+  let streak = 0;
+
+  const $ = (id) => document.getElementById(id);
 
   function r(a){return a[Math.floor(Math.random()*a.length)]}
 
   function newQ(){
     locked=false;
-    msg.textContent="";
+    $("msg").textContent="";
+    $("msg").className="msg";
     const [p,e]=r(data);
     correct=e;
-    q.textContent=`What ending for “${p}”?`;
+    $("q").textContent=`What ending for “${p}”?`;
     let w=r(ends.filter(x=>x!==e));
-    Math.random()<.5?(a.textContent=e,b.textContent=w):(a.textContent=w,b.textContent=e);
+    Math.random()<.5?($("a").textContent=e,$("b").textContent=w):($("a").textContent=w,$("b").textContent=e);
   }
 
   function pick(id){
     if(locked) return;
     locked=true;
-    if(document.getElementById(id).textContent===correct){
-      msg.textContent="✅ YES!";
+    const chosen = document.getElementById(id).textContent;
+
+    if(chosen===correct){
+      coins += 1;
+      streak += 1;
+      $("msg").textContent="✅ YES! +1 coin 🪙";
+      $("msg").className="msg good";
+      popConfetti();
     } else {
-      msg.textContent="❌ It’s "+correct;
+      streak = 0;
+      $("msg").textContent="❌ It’s "+correct;
+      $("msg").className="msg bad";
     }
+    updateCounters();
   }
 
+  function updateCounters(){
+    $("coins").textContent = coins;
+    $("streak").textContent = streak;
+    saveState();
+    refreshBuildMessage();
+  }
+
+  // ---------- BUILDER ----------
+  const roomTypes = [
+    { key:"door",  label:"🚪 Door",      color:"#ffe66d" },
+    { key:"hall",  label:"🟨 Hall",      color:"#fff3bf" },
+    { key:"kitchen", label:"🍳 Kitchen", color:"#ffd6a5" },
+    { key:"bed",   label:"🛏️ Bedroom",   color:"#cdb4db" },
+    { key:"bath",  label:"🛁 Bathroom",  color:"#a2d2ff" },
+    { key:"lounge",label:"🛋️ Lounge",    color:"#bde0fe" },
+    { key:"desk",  label:"📚 Study",     color:"#b7e4c7" },
+    { key:"garden",label:"🌿 Garden",    color:"#95d5b2" }
+  ];
+
+  const size = 6; // 6x6
+  let selectedRoom = roomTypes[0];
+  let plan = Array(size*size).fill(null); // each cell = room key or null
+
+  function initRooms(){
+    const wrap = $("rooms");
+    wrap.innerHTML = "";
+    roomTypes.forEach(rt => {
+      const b = document.createElement("button");
+      b.className = "roomBtn" + (rt.key === selectedRoom.key ? " active" : "");
+      b.textContent = rt.label;
+      b.onclick = () => {
+        selectedRoom = rt;
+        [...wrap.querySelectorAll("button")].forEach(x => x.classList.remove("active"));
+        b.classList.add("active");
+        refreshBuildMessage();
+      };
+      wrap.appendChild(b);
+    });
+  }
+
+  function initPlan(){
+    const wrap = $("plan");
+    wrap.innerHTML = "";
+    for(let i=0;i<size*size;i++){
+      const cell = document.createElement("div");
+      cell.className = "tile";
+      cell.onclick = () => placeRoom(i);
+      wrap.appendChild(cell);
+    }
+    renderPlan();
+  }
+
+  function placeRoom(index){
+    // If already filled, allow removing for free (easy for kids)
+    if(plan[index]){
+      plan[index] = null;
+      renderPlan();
+      saveState();
+      refreshBuildMessage();
+      return;
+    }
+
+    if(coins <= 0){
+      $("buildMsg").textContent = "You need a coin 🪙 — get one by answering a question correctly!";
+      return;
+    }
+
+    // Place room
+    plan[index] = selectedRoom.key;
+    coins -= 1;
+    renderPlan();
+    updateCounters();
+  }
+
+  function renderPlan(){
+    const cells = [...$("plan").children];
+    cells.forEach((cell, i) => {
+      const key = plan[i];
+      if(!key){
+        cell.className = "tile";
+        cell.style.background = "rgba(255,255,255,.75)";
+        cell.textContent = "+";
+        return;
+      }
+      const rt = roomTypes.find(x => x.key === key);
+      cell.className = "tile filled";
+      cell.style.background = rt ? rt.color : "#fff";
+      cell.textContent = rt ? rt.label : key;
+    });
+  }
+
+  function resetHouse(){
+    plan = Array(size*size).fill(null);
+    renderPlan();
+    saveState();
+    refreshBuildMessage();
+  }
+
+  function refreshBuildMessage(){
+    const filled = plan.filter(Boolean).length;
+    $("buildMsg").textContent =
+      `Selected: ${selectedRoom.label} • Rooms placed: ${filled} • Coins left: ${coins} 🪙 (Tap a filled square to remove it for free.)`;
+  }
+
+  // ---------- CONFETTI ----------
+  function popConfetti(){
+    const wrap = $("confetti");
+    wrap.innerHTML = "";
+    wrap.style.display = "block";
+
+    const colours = ["#ff4fd8","#7c5cff","#2ee9ff","#7dff6a","#ffea00","#ff6b6b","#00c2ff"];
+    for(let i=0;i<40;i++){
+      const d = document.createElement("div");
+      d.className = "dot";
+      d.style.left = Math.floor(Math.random()*100) + "vw";
+      d.style.background = r(colours);
+      d.style.width = (6 + Math.random()*10) + "px";
+      d.style.height = d.style.width;
+      d.style.animationDuration = (600 + Math.random()*600) + "ms";
+      wrap.appendChild(d);
+    }
+    setTimeout(()=>{ wrap.style.display="none"; }, 900);
+  }
+
+  // ---------- SAVE / LOAD (so the house stays!) ----------
+  function saveState(){
+    try{
+      localStorage.setItem("er_coins", String(coins));
+      localStorage.setItem("er_streak", String(streak));
+      localStorage.setItem("er_plan", JSON.stringify(plan));
+      localStorage.setItem("er_selected", selectedRoom.key);
+    }catch(e){}
+  }
+
+  function loadState(){
+    try{
+      const c = Number(localStorage.getItem("er_coins"));
+      const s = Number(localStorage.getItem("er_streak"));
+      const p = localStorage.getItem("er_plan");
+      const sel = localStorage.getItem("er_selected");
+
+      if(!Number.isNaN(c)) coins = c;
+      if(!Number.isNaN(s)) streak = s;
+      if(p) plan = JSON.parse(p);
+
+      const found = roomTypes.find(x => x.key === sel);
+      if(found) selectedRoom = found;
+    }catch(e){}
+  }
+
+  // ---------- PWA OFFLINE ----------
   if("serviceWorker" in navigator){
     navigator.serviceWorker.register("service-worker.js");
   }
+
+  // Start
+  loadState();
+  initRooms();
+  initPlan();
+  updateCounters();
 </script>
 </body>
 </html>
