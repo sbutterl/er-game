@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ER Endings Game + House Builder</title>
+  <title>ER Game + House Builder + 3D Reward</title>
 
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#ff4fd8">
@@ -11,7 +11,7 @@
   <style>
     body{
       font-family: Arial, sans-serif;
-      max-width: 980px;
+      max-width: 1050px;
       margin: 0 auto;
       padding: 14px;
       background: linear-gradient(135deg,#ff4fd8,#7c5cff,#2ee9ff,#7dff6a);
@@ -24,14 +24,8 @@
       100%{background-position:0% 50%}
     }
 
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
-    @media (min-width: 900px){
-      .grid{ grid-template-columns: 1.05fr .95fr; }
-    }
+    .grid{display:grid;grid-template-columns:1fr;gap:12px;}
+    @media (min-width: 920px){ .grid{grid-template-columns:1.05fr .95fr;} }
 
     .card{
       background: rgba(255,255,255,0.94);
@@ -43,138 +37,103 @@
     h1{margin:0 0 6px}
     .sub{margin:0 0 12px}
 
-    .toprow{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
-      justify-content:space-between;
-    }
+    .toprow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:space-between;}
     .pill{
-      display:inline-block;
-      padding: 8px 12px;
-      border-radius: 999px;
-      font-weight: 800;
-      background: #111;
-      color: white;
-      font-size: 14px;
+      display:inline-block;padding: 8px 12px;border-radius: 999px;
+      font-weight: 900;background: #111;color: white;font-size: 14px;
     }
-    .pill span{opacity:.9; font-weight:700}
+    .pill span{opacity:.95;font-weight:900}
 
     .q{font-size:24px;margin:14px 0;font-weight:900}
 
     button{
-      width:100%;
-      padding:16px;
-      margin:8px 0;
-      font-size:20px;
-      border-radius:18px;
-      border:none;
-      font-weight:900;
-      cursor:pointer;
-      transition: transform .05s ease;
+      width:100%;padding:16px;margin:8px 0;font-size:20px;border-radius:18px;border:none;
+      font-weight:900;cursor:pointer;transition: transform .05s ease;
     }
     button:active{transform: scale(.99)}
-
     .new{background:#111;color:white}
     .a{background:linear-gradient(90deg,#ff9a3c,#ff4fd8); color:#111}
     .b{background:linear-gradient(90deg,#2ee9ff,#7c5cff); color:white}
+
     .smallbtn{
-      width:auto;
-      padding:10px 12px;
-      font-size:14px;
-      border-radius:12px;
-      margin:0;
-      background:#111;
-      color:#fff;
+      width:auto;padding:10px 12px;font-size:14px;border-radius:12px;margin:0;
+      background:#111;color:#fff;
+    }
+    .bigreward{
+      background: linear-gradient(90deg,#ffea00,#ff4fd8,#2ee9ff);
+      color:#111;
+      font-size:22px;
+      border: 3px solid rgba(0,0,0,.2);
     }
 
     .msg{min-height:28px;font-size:18px;font-weight:900;margin-top:6px}
     .good{color:#0a7a55}
     .bad{color:#b00020}
 
+    .hint{font-size:14px;opacity:.95;margin-top:6px;line-height:1.3}
+
     /* Builder */
-    .builderTop{
+    .builderTop{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom: 10px;}
+    .rooms{display:flex;gap:8px;flex-wrap:wrap;margin: 10px 0 8px;}
+    .roomBtn{
+      width:auto;padding:10px 12px;font-size:14px;border-radius:999px;border:2px solid rgba(0,0,0,.12);
+      background:#fff;cursor:pointer;font-weight:900;
+    }
+    .roomBtn.active{border-color:#111;box-shadow: 0 0 0 3px rgba(0,0,0,.08);}
+
+    .plan{display:grid;grid-template-columns: repeat(6, 1fr);gap:8px;user-select:none;margin-top:10px;}
+    .tile{
+      aspect-ratio: 1 / 1;border-radius: 14px;border: 2px dashed rgba(0,0,0,.25);
+      background: rgba(255,255,255,.75);
+      display:flex;align-items:center;justify-content:center;
+      font-weight: 900;font-size: 12px;text-align:center;padding: 6px;cursor:pointer;
+    }
+    .tile.filled{border-style: solid;border-color: rgba(0,0,0,.15);color:#111;}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+
+    input[type="text"]{
+      width: 220px; max-width: 100%;
+      padding:10px 12px;border-radius:12px;border:1px solid rgba(0,0,0,.2);
+      font-weight:700;
+    }
+    input[type="color"]{
+      width:48px;height:40px;border:none;background:transparent;cursor:pointer;
+    }
+
+    /* 3D overlay */
+    #overlay3d{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.75);
+      display:none;
+      z-index:9999;
+    }
+    #panel3d{
+      position:absolute; left:12px; top:12px; right:12px;
+      max-width: 980px; margin: 0 auto;
+      background: rgba(255,255,255,.95);
+      border-radius: 18px;
+      padding: 12px;
       display:flex;
       gap:10px;
       flex-wrap:wrap;
       align-items:center;
       justify-content:space-between;
-      margin-bottom: 10px;
     }
-    .rooms{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      margin: 10px 0 8px;
+    #canvasWrap{
+      position:absolute; inset:80px 12px 12px 12px;
+      max-width: 980px; margin: 0 auto;
+      border-radius: 18px;
+      overflow:hidden;
+      background:#000;
+      box-shadow: 0 12px 30px rgba(0,0,0,.35);
     }
-    .roomBtn{
-      width:auto;
-      padding:10px 12px;
-      font-size:14px;
-      border-radius:999px;
-      border:2px solid rgba(0,0,0,.12);
-      background:#fff;
-      cursor:pointer;
-      font-weight:900;
-    }
-    .roomBtn.active{
-      border-color:#111;
-      box-shadow: 0 0 0 3px rgba(0,0,0,.08);
-    }
-
-    .plan{
-      display:grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap:8px;
-      user-select:none;
-      margin-top:10px;
-    }
-    .tile{
-      aspect-ratio: 1 / 1;
-      border-radius: 14px;
-      border: 2px dashed rgba(0,0,0,.25);
-      background: rgba(255,255,255,.75);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-weight: 900;
-      font-size: 12px;
-      text-align:center;
-      padding: 6px;
-      cursor:pointer;
-    }
-    .tile.filled{
-      border-style: solid;
-      border-color: rgba(0,0,0,.15);
-      color:#111;
-    }
-    .hint{
-      font-size:14px;
-      opacity:.9;
-      margin-top:6px;
-      line-height:1.3;
-    }
+    #help3d{font-size:13px;opacity:.9;line-height:1.25}
+    .kbd{background:#111;color:#fff;padding:2px 8px;border-radius:999px;font-weight:900;font-size:12px}
 
     /* Confetti */
-    .confetti{
-      position: fixed;
-      left: 0; top: 0;
-      width: 100%; height: 100%;
-      pointer-events: none;
-      overflow: hidden;
-      display:none;
-    }
-    .dot{
-      position:absolute;
-      width:10px; height:10px;
-      border-radius: 50%;
-      animation: fall 900ms linear forwards;
-    }
-    @keyframes fall{
-      from{transform: translateY(-20px) rotate(0deg); opacity:1;}
-      to{transform: translateY(100vh) rotate(360deg); opacity:0;}
-    }
+    .confetti{position: fixed;left: 0;top: 0;width: 100%;height: 100%;pointer-events: none;overflow: hidden;display:none;}
+    .dot{position:absolute;width:10px;height:10px;border-radius: 50%;animation: fall 900ms linear forwards;}
+    @keyframes fall{from{transform: translateY(-20px) rotate(0deg); opacity:1;}to{transform: translateY(100vh) rotate(360deg); opacity:0;}}
   </style>
 </head>
 
@@ -185,10 +144,10 @@
       <div class="toprow">
         <div>
           <h1>🌈 ER Endings Game</h1>
-          <p class="sub">Rule: remove <b>-er</b>, add <b>e es e ons ez ent</b></p>
+          <p class="sub">Reward goal: get <b>10 correct in a row</b> to unlock <b>3D Walk</b> 🏠✨</p>
         </div>
         <div class="pill">
-          Coins 🪙 <span id="coins">0</span> • Streak <span id="streak">0</span>
+          Coins 🪙 <span id="coins">0</span> • Streak <span id="streak">0</span>/10
         </div>
       </div>
 
@@ -199,31 +158,70 @@
       <button class="b" id="b" onclick="pick('b')">—</button>
 
       <div class="msg" id="msg"></div>
+
       <div class="hint">
-        Reward: every correct answer gives <b>+1 coin</b>. Use coins to build your house on the right 🏠
+        Each correct answer gives <b>+1 coin</b> to place a room tile.
+        Get <b>10 in a row</b> to unlock the 3D walk-around reward.
       </div>
+
+      <button id="enter3dBtn" class="bigreward" onclick="open3D()" style="display:none;">
+        🎉 ENTER 3D HOUSE (Unlocked!)
+      </button>
     </div>
 
     <!-- BUILDER -->
     <div class="card">
       <div class="builderTop">
-        <h1 style="margin:0">🏠 Build a House</h1>
-        <button class="smallbtn" onclick="resetHouse()">Reset House</button>
+        <h1 style="margin:0">🏠 Build a House Plan</h1>
+        <div class="row">
+          <button class="smallbtn" onclick="resetHouse()">Reset Plan</button>
+          <button class="smallbtn" onclick="resetProgress()">Reset Coins/Streak</button>
+        </div>
       </div>
 
-      <div class="hint">
-        Choose a room, then tap a square to place it. Each room costs <b>1 coin</b>.
+      <div class="row" style="justify-content:space-between;">
+        <div class="hint" style="margin:0">
+          Choose a room, then tap a square to place it. (Costs <b>1 coin</b>)<br>
+          Tap a filled square to remove it (free).
+        </div>
       </div>
 
       <div class="rooms" id="rooms"></div>
+      <div class="plan" id="plan"></div>
 
-      <div class="plan" id="plan" aria-label="floor plan grid"></div>
+      <div class="row" style="margin-top:10px;align-items:center;justify-content:space-between;">
+        <div class="hint" id="buildMsg"></div>
+      </div>
 
-      <div class="hint" id="buildMsg"></div>
+      <hr style="border:none;border-top:1px solid rgba(0,0,0,.12);margin:12px 0;">
+
+      <div class="row" style="align-items:center;">
+        <div style="font-weight:900;">Create your person:</div>
+        <label class="hint" style="margin:0">Name</label>
+        <input id="avatarName" type="text" placeholder="e.g., Lily" maxlength="16">
+        <label class="hint" style="margin:0">Colour</label>
+        <input id="avatarColor" type="color" value="#ff4fd8">
+        <button class="smallbtn" onclick="saveAvatar()">Save person</button>
+      </div>
+      <div class="hint">Your person appears in 3D as a little character you can walk around as.</div>
     </div>
   </div>
 
   <div class="confetti" id="confetti"></div>
+
+  <!-- 3D overlay -->
+  <div id="overlay3d">
+    <div id="panel3d">
+      <div style="font-weight:900;">🏠 3D House Walk</div>
+      <div id="help3d">
+        Move: <span class="kbd">W</span><span class="kbd">A</span><span class="kbd">S</span><span class="kbd">D</span> •
+        Look: drag on screen / mouse •
+        Reset view: <span class="kbd">R</span>
+      </div>
+      <button class="smallbtn" onclick="close3D()">Close</button>
+    </div>
+    <div id="canvasWrap"></div>
+  </div>
 
 <script>
   // ---------- GAME ----------
@@ -233,9 +231,9 @@
 
   let coins = 0;
   let streak = 0;
+  let unlocked3d = false;
 
   const $ = (id) => document.getElementById(id);
-
   function r(a){return a[Math.floor(Math.random()*a.length)]}
 
   function newQ(){
@@ -260,6 +258,10 @@
       $("msg").textContent="✅ YES! +1 coin 🪙";
       $("msg").className="msg good";
       popConfetti();
+      if(streak >= 10){
+        unlocked3d = true;
+        $("enter3dBtn").style.display = "block";
+      }
     } else {
       streak = 0;
       $("msg").textContent="❌ It’s "+correct;
@@ -275,21 +277,28 @@
     refreshBuildMessage();
   }
 
-  // ---------- BUILDER ----------
-  const roomTypes = [
-    { key:"door",  label:"🚪 Door",      color:"#ffe66d" },
-    { key:"hall",  label:"🟨 Hall",      color:"#fff3bf" },
-    { key:"kitchen", label:"🍳 Kitchen", color:"#ffd6a5" },
-    { key:"bed",   label:"🛏️ Bedroom",   color:"#cdb4db" },
-    { key:"bath",  label:"🛁 Bathroom",  color:"#a2d2ff" },
-    { key:"lounge",label:"🛋️ Lounge",    color:"#bde0fe" },
-    { key:"desk",  label:"📚 Study",     color:"#b7e4c7" },
-    { key:"garden",label:"🌿 Garden",    color:"#95d5b2" }
-  ];
+  function resetProgress(){
+    coins = 0; streak = 0; unlocked3d = false;
+    $("enter3dBtn").style.display = "none";
+    updateCounters();
+    $("msg").textContent="";
+    $("q").textContent="Tap NEW to start ✨";
+  }
 
+  // ---------- BUILDER (2D plan) ----------
+  const roomTypes = [
+    { key:"door",   label:"🚪 Door",      color:"#ffe66d" },
+    { key:"hall",   label:"🟨 Hall",      color:"#fff3bf" },
+    { key:"kitchen",label:"🍳 Kitchen",   color:"#ffd6a5" },
+    { key:"bed",    label:"🛏️ Bedroom",   color:"#cdb4db" },
+    { key:"bath",   label:"🛁 Bathroom",  color:"#a2d2ff" },
+    { key:"lounge", label:"🛋️ Lounge",    color:"#bde0fe" },
+    { key:"study",  label:"📚 Study",     color:"#b7e4c7" },
+    { key:"garden", label:"🌿 Garden",    color:"#95d5b2" }
+  ];
   const size = 6; // 6x6
   let selectedRoom = roomTypes[0];
-  let plan = Array(size*size).fill(null); // each cell = room key or null
+  let plan = Array(size*size).fill(null);
 
   function initRooms(){
     const wrap = $("rooms");
@@ -321,7 +330,6 @@
   }
 
   function placeRoom(index){
-    // If already filled, allow removing for free (easy for kids)
     if(plan[index]){
       plan[index] = null;
       renderPlan();
@@ -335,7 +343,6 @@
       return;
     }
 
-    // Place room
     plan[index] = selectedRoom.key;
     coins -= 1;
     renderPlan();
@@ -369,10 +376,21 @@
   function refreshBuildMessage(){
     const filled = plan.filter(Boolean).length;
     $("buildMsg").textContent =
-      `Selected: ${selectedRoom.label} • Rooms placed: ${filled} • Coins left: ${coins} 🪙 (Tap a filled square to remove it for free.)`;
+      `Selected: ${selectedRoom.label} • Tiles placed: ${filled} • Coins: ${coins} 🪙 • Streak: ${streak}/10`;
   }
 
-  // ---------- CONFETTI ----------
+  // ---------- Avatar ----------
+  let avatar = { name: "", color: "#ff4fd8" };
+
+  function saveAvatar(){
+    avatar.name = ($("avatarName").value || "").trim();
+    avatar.color = $("avatarColor").value || "#ff4fd8";
+    saveState();
+    $("buildMsg").textContent = `Saved person: ${avatar.name || "My Person"} 🎨`;
+    setTimeout(refreshBuildMessage, 900);
+  }
+
+  // ---------- Confetti ----------
   function popConfetti(){
     const wrap = $("confetti");
     wrap.innerHTML = "";
@@ -392,13 +410,15 @@
     setTimeout(()=>{ wrap.style.display="none"; }, 900);
   }
 
-  // ---------- SAVE / LOAD (so the house stays!) ----------
+  // ---------- Save / Load ----------
   function saveState(){
     try{
       localStorage.setItem("er_coins", String(coins));
       localStorage.setItem("er_streak", String(streak));
+      localStorage.setItem("er_unlocked3d", unlocked3d ? "1" : "0");
       localStorage.setItem("er_plan", JSON.stringify(plan));
       localStorage.setItem("er_selected", selectedRoom.key);
+      localStorage.setItem("er_avatar", JSON.stringify(avatar));
     }catch(e){}
   }
 
@@ -406,27 +426,321 @@
     try{
       const c = Number(localStorage.getItem("er_coins"));
       const s = Number(localStorage.getItem("er_streak"));
+      const u = localStorage.getItem("er_unlocked3d");
       const p = localStorage.getItem("er_plan");
       const sel = localStorage.getItem("er_selected");
+      const av = localStorage.getItem("er_avatar");
 
       if(!Number.isNaN(c)) coins = c;
       if(!Number.isNaN(s)) streak = s;
-      if(p) plan = JSON.parse(p);
+      unlocked3d = (u === "1");
 
+      if(p) plan = JSON.parse(p);
       const found = roomTypes.find(x => x.key === sel);
       if(found) selectedRoom = found;
+
+      if(av) avatar = JSON.parse(av);
     }catch(e){}
   }
 
-  // ---------- PWA OFFLINE ----------
+  // ---------- PWA Offline ----------
   if("serviceWorker" in navigator){
     navigator.serviceWorker.register("service-worker.js");
   }
 
-  // Start
+  // ---------- 3D Reward (Three.js) ----------
+  let THREE_LOADED = false;
+  let threeScriptPromise = null;
+
+  let renderer, scene, camera;
+  let avatarMesh, labelSprite;
+  let keys = {w:false,a:false,s:false,d:false};
+  let lastT = 0;
+  let camYaw = 0, camPitch = 0;
+  let dragging = false;
+  let lastX=0, lastY=0;
+
+  function loadThree(){
+    if(THREE_LOADED) return Promise.resolve();
+    if(threeScriptPromise) return threeScriptPromise;
+
+    threeScriptPromise = new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.src = "https://unpkg.com/three@0.160.0/build/three.min.js";
+      s.onload = () => { THREE_LOADED = true; resolve(); };
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+
+    return threeScriptPromise;
+  }
+
+  function open3D(){
+    if(!unlocked3d){
+      alert("Get 10 correct in a row to unlock 3D!");
+      return;
+    }
+    $("overlay3d").style.display = "block";
+    loadThree().then(() => {
+      start3D();
+    }).catch(() => {
+      alert("3D failed to load. Check internet connection (needed once to load 3D library).");
+    });
+  }
+
+  function close3D(){
+    $("overlay3d").style.display = "none";
+    stop3D();
+  }
+
+  function start3D(){
+    const wrap = document.getElementById("canvasWrap");
+    wrap.innerHTML = ""; // clear previous
+
+    renderer = new THREE.WebGLRenderer({ antialias:true });
+    renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+    renderer.setSize(wrap.clientWidth, wrap.clientHeight);
+    wrap.appendChild(renderer.domElement);
+
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0b0f1a);
+
+    camera = new THREE.PerspectiveCamera(60, wrap.clientWidth / wrap.clientHeight, 0.1, 200);
+    camera.position.set(0, 7, 12);
+    camYaw = 0; camPitch = -0.2;
+
+    // Lights
+    const hemi = new THREE.HemisphereLight(0xffffff, 0x223355, 1.0);
+    scene.add(hemi);
+    const dir = new THREE.DirectionalLight(0xffffff, 0.9);
+    dir.position.set(8, 12, 6);
+    scene.add(dir);
+
+    // Floor
+    const floorGeo = new THREE.PlaneGeometry(80, 80);
+    const floorMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.9 });
+    const floor = new THREE.Mesh(floorGeo, floorMat);
+    floor.rotation.x = -Math.PI/2;
+    scene.add(floor);
+
+    // Build house from plan (each filled tile = a room block + little walls)
+    const tileSize = 2.2;
+    const startX = -(size-1)*tileSize/2;
+    const startZ = -(size-1)*tileSize/2;
+
+    // helper: color by room type
+    const colorFor = (key) => {
+      const rt = roomTypes.find(x => x.key === key);
+      if(!rt) return 0xffffff;
+      // convert hex string like "#ffd6a5" -> number
+      return parseInt(rt.color.replace("#","0x"), 16);
+    };
+
+    // Create a subtle grid under tiles
+    const grid = new THREE.GridHelper(40, 40, 0x334155, 0x1f2937);
+    grid.position.y = 0.01;
+    scene.add(grid);
+
+    // Room tiles
+    const roomHeight = 1.2;
+    for(let i=0;i<plan.length;i++){
+      const key = plan[i];
+      if(!key) continue;
+
+      const row = Math.floor(i/size);
+      const col = i % size;
+
+      const x = startX + col*tileSize;
+      const z = startZ + row*tileSize;
+
+      // Floor tile
+      const tileGeo = new THREE.BoxGeometry(tileSize*0.95, 0.2, tileSize*0.95);
+      const tileMat = new THREE.MeshStandardMaterial({ color: colorFor(key), roughness:0.7 });
+      const tile = new THREE.Mesh(tileGeo, tileMat);
+      tile.position.set(x, 0.1, z);
+      scene.add(tile);
+
+      // “room block” (low walls)
+      const wallGeo = new THREE.BoxGeometry(tileSize*0.95, roomHeight, tileSize*0.95);
+      const wallMat = new THREE.MeshStandardMaterial({ color: 0xffffff, opacity:0.25, transparent:true, roughness:0.9 });
+      const walls = new THREE.Mesh(wallGeo, wallMat);
+      walls.position.set(x, 0.1 + roomHeight/2, z);
+      scene.add(walls);
+    }
+
+    // Avatar (simple capsule-ish: cylinder + spheres)
+    const col = new THREE.Color(avatar.color || "#ff4fd8");
+    const bodyMat = new THREE.MeshStandardMaterial({ color: col, roughness:0.5 });
+
+    const cyl = new THREE.Mesh(new THREE.CylinderGeometry(0.35,0.35,1.0,16), bodyMat);
+    cyl.position.y = 0.8;
+
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.35, 16, 16), bodyMat);
+    head.position.y = 1.45;
+
+    avatarMesh = new THREE.Group();
+    avatarMesh.add(cyl); avatarMesh.add(head);
+    avatarMesh.position.set(0, 0, 0);
+    scene.add(avatarMesh);
+
+    // Name label (simple sprite)
+    labelSprite = makeLabelSprite(avatar.name || "My Person");
+    labelSprite.position.set(0, 2.0, 0);
+    scene.add(labelSprite);
+
+    // Controls: drag to look
+    const canvas = renderer.domElement;
+    canvas.addEventListener("pointerdown", (e)=>{ dragging=true; lastX=e.clientX; lastY=e.clientY; canvas.setPointerCapture(e.pointerId); });
+    canvas.addEventListener("pointerup", (e)=>{ dragging=false; try{canvas.releasePointerCapture(e.pointerId);}catch(_){} });
+    canvas.addEventListener("pointermove", (e)=>{
+      if(!dragging) return;
+      const dx = e.clientX - lastX;
+      const dy = e.clientY - lastY;
+      lastX = e.clientX; lastY = e.clientY;
+      camYaw -= dx * 0.004;
+      camPitch -= dy * 0.004;
+      camPitch = Math.max(-1.2, Math.min(0.2, camPitch));
+    });
+
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+    window.addEventListener("resize", onResize3D);
+
+    lastT = performance.now();
+    requestAnimationFrame(loop3D);
+  }
+
+  function makeLabelSprite(text){
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const pad = 18;
+    ctx.font = "900 34px Arial";
+    const w = Math.ceil(ctx.measureText(text).width) + pad*2;
+    const h = 60;
+    canvas.width = w; canvas.height = h;
+
+    // redraw with proper size
+    ctx.fillStyle = "rgba(17,17,17,0.85)";
+    roundRect(ctx, 0, 0, w, h, 18);
+    ctx.fill();
+
+    ctx.font = "900 34px Arial";
+    ctx.fillStyle = "#fff";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, pad, h/2);
+
+    const tex = new THREE.CanvasTexture(canvas);
+    const mat = new THREE.SpriteMaterial({ map: tex, transparent:true });
+    const spr = new THREE.Sprite(mat);
+    spr.scale.set(3.5, 0.9, 1);
+    return spr;
+  }
+
+  function roundRect(ctx, x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r);
+    ctx.closePath();
+  }
+
+  function stop3D(){
+    try{
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup", onKeyUp);
+      window.removeEventListener("resize", onResize3D);
+    }catch(_){}
+
+    if(renderer){
+      try{ renderer.dispose(); }catch(_){}
+    }
+    renderer = null; scene = null; camera = null;
+  }
+
+  function onResize3D(){
+    const wrap = document.getElementById("canvasWrap");
+    if(!renderer || !camera) return;
+    renderer.setSize(wrap.clientWidth, wrap.clientHeight);
+    camera.aspect = wrap.clientWidth / wrap.clientHeight;
+    camera.updateProjectionMatrix();
+  }
+
+  function onKeyDown(e){
+    const k = e.key.toLowerCase();
+    if(k==="w") keys.w=true;
+    if(k==="a") keys.a=true;
+    if(k==="s") keys.s=true;
+    if(k==="d") keys.d=true;
+    if(k==="r"){ // reset view
+      if(camera){
+        camera.position.set(0, 7, 12);
+        camYaw = 0; camPitch = -0.2;
+      }
+      if(avatarMesh){
+        avatarMesh.position.set(0,0,0);
+        labelSprite.position.set(0,2.0,0);
+      }
+    }
+  }
+  function onKeyUp(e){
+    const k = e.key.toLowerCase();
+    if(k==="w") keys.w=false;
+    if(k==="a") keys.a=false;
+    if(k==="s") keys.s=false;
+    if(k==="d") keys.d=false;
+  }
+
+  function loop3D(t){
+    if(!renderer || !scene || !camera) return;
+    const dt = Math.min(0.05, (t - lastT) / 1000);
+    lastT = t;
+
+    // Move avatar on XZ plane
+    const speed = 4.0;
+    const forward = new THREE.Vector3(Math.sin(camYaw), 0, Math.cos(camYaw));
+    const right = new THREE.Vector3(Math.sin(camYaw + Math.PI/2), 0, Math.cos(camYaw + Math.PI/2));
+    let move = new THREE.Vector3(0,0,0);
+    if(keys.w) move.add(forward);
+    if(keys.s) move.sub(forward);
+    if(keys.d) move.add(right);
+    if(keys.a) move.sub(right);
+    if(move.lengthSq() > 0){
+      move.normalize().multiplyScalar(speed*dt);
+      avatarMesh.position.add(move);
+      labelSprite.position.set(avatarMesh.position.x, 2.0, avatarMesh.position.z);
+    }
+
+    // Camera follows behind avatar
+    const followDist = 7.5;
+    const height = 3.8;
+    const camBack = new THREE.Vector3(-Math.sin(camYaw), 0, -Math.cos(camYaw)).multiplyScalar(followDist);
+    camera.position.set(
+      avatarMesh.position.x + camBack.x,
+      height + camPitch*2.0,
+      avatarMesh.position.z + camBack.z
+    );
+    camera.lookAt(avatarMesh.position.x, 1.2, avatarMesh.position.z);
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(loop3D);
+  }
+
+  // ---------- Start ----------
   loadState();
+
+  // restore avatar UI
+  $("avatarName").value = avatar.name || "";
+  $("avatarColor").value = avatar.color || "#ff4fd8";
+
   initRooms();
   initPlan();
+
+  if(unlocked3d || streak >= 10){
+    unlocked3d = true;
+    $("enter3dBtn").style.display = "block";
+  }
   updateCounters();
 </script>
 </body>
